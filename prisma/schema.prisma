@@ -1,0 +1,115 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URI")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model Password {
+  hash   String
+  userId Int    @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  name     String
+  phone    String?
+  mobile   String?
+  password Password?
+  approved Boolean   @default(true)
+  role     UserRole  @default(USER)
+  Booking  Booking[]
+  Ticket   Ticket[]
+}
+
+model Theater {
+  id            Int             @id @default(autoincrement())
+  name          String
+  location      String
+  screens       Int
+  seats         Seat[]
+  movieId       Int?            @unique
+  MovieSchedule MovieSchedule[]
+  Movie        Movie?
+}
+
+model Seat {
+  id           Int           @id @default(autoincrement())
+  number       String
+  isReserved   Boolean       @default(false)
+  theaterId    Int
+  theater      Theater       @relation(fields: [theaterId], references: [id])
+  reservations Reservation[]
+  Booking      Booking?      @relation(fields: [bookingId], references: [id])
+  bookingId    Int?
+}
+
+model Movie {
+  id          Int             @id @default(autoincrement())
+  title       String
+  description String?
+  duration    Int // duration in minutes
+  schedules   MovieSchedule[]
+  Theater     Theater?        @relation(fields: [theaterId], references: [id])
+  theaterId   Int?             @unique
+}
+
+model MovieSchedule {
+  id        Int       @id @default(autoincrement())
+  showTime  DateTime
+  movieId   Int
+  theaterId Int
+  movie     Movie     @relation(fields: [movieId], references: [id])
+  theater   Theater   @relation(fields: [theaterId], references: [id])
+  tickets   Ticket[]
+  Booking   Booking[]
+}
+
+model Ticket {
+  id            Int           @id @default(autoincrement())
+  price         Int
+  scheduleId    Int
+  schedule      MovieSchedule @relation(fields: [scheduleId], references: [id])
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  paymentStatus String
+  Payment Payment[]
+}
+
+model Booking {
+  id         Int           @id @default(autoincrement())
+  userId     Int
+  user       User          @relation(fields: [userId], references: [id])
+  scheduleId Int
+  schedule   MovieSchedule @relation(fields: [scheduleId], references: [id])
+  seats      Seat[]
+  Reservation Reservation[]
+}
+
+model Reservation {
+  id        Int     @id @default(autoincrement())
+  seatId    Int
+  seat      Seat    @relation(fields: [seatId], references: [id])
+  bookingId Int
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  status    String  @default("reserved")
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  amount    Int
+  provider  String   @default("Stripe")
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
