@@ -1,53 +1,53 @@
 
     import { RouteShorthandOptionsWithHandler } from "fastify"
     import { requestMeta } from "@/core/helpers"
-    import { Cinema, MovieSchema } from "./cinemaSchema"
-    import { CinemaService } from "./cinemaService"
-    import { CinemaSchema } from "./cinemaSchema"
+    import { Movie } from "./movieSchema"
+    import { MovieService } from "./movieService"
+    import { MovieSchema } from "./movieSchema"
     import { validateToken } from "@/core/server/middleware"
     import { hasRole } from "@/core/server/middleware"
-    import { Movie, UserRole } from "@prisma/client"
+    import { UserRole } from "@prisma/client"
 
-    export const CinemaController: Record<
+    export const MovieController: Record<
     string,
     RouteShorthandOptionsWithHandler
     > = {
-    createCinema: {
+    createMovie: {
         preValidation: [
         validateToken,
         hasRole(UserRole.ADMIN),
         ],
         schema: {
-        body: CinemaSchema,
+        body: MovieSchema,
         },
         handler: async (req) => {
-        const body = req.body as Cinema
-        return await CinemaService.createCinema(body)
+        const body = req.body as Movie
+        return await MovieService.createMovie(body)
         },
     },
-    listCinema: {
+    listMovie: {
         handler: async (req) => {
         const body = req.params
-        return await CinemaService.listCinemas(body)
+        return await MovieService.listMovies(body)
         },
     },
-    updateCinema: {
+    updateMovie: {
         preValidation: [
         validateToken,
         hasRole(UserRole.ADMIN),
         ],
         schema: {
-        body: CinemaSchema,
+        body: MovieSchema,
         },
         handler: async (req) => {
         const params = req.params as { id: number }
-        const body = req.body as Cinema
+        const body = req.body as Movie
         console.log(body)
         const id = params.id
-        return await CinemaService.updateCinema(id, body)
+        return await MovieService.updateMovie(id, body)
         },
     },
-    deleteCinema: {
+    deleteMovie: {
         preValidation: [
         validateToken,
         hasRole(UserRole.ADMIN),
@@ -55,9 +55,8 @@
         handler: async (req) => {
         const params = req.params as { id: number }
         const id = params.id
-        return await CinemaService.deleteCinema(id)
+        return await MovieService.deleteMovie(id)
         },
     },
-  
     }
     

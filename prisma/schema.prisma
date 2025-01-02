@@ -19,60 +19,68 @@ model Password {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  email    String    @unique
-  name     String
-  phone    String?
-  mobile   String?
-  password Password?
-  approved Boolean   @default(true)
-  role     UserRole  @default(USER)
-  Booking  Booking[]
-  Ticket   Ticket[]
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  name        String
+  phone       String?
+  mobile      String?
+  password    Password?
+  approved    Boolean       @default(true)
+  role        UserRole      @default(USER)
+  // Booking  Booking[]
+  Ticket      Ticket[]
+  Reservation Reservation[]
 }
 
 model Theater {
   id            Int             @id @default(autoincrement())
   name          String
-  seatsType      String
+  seatsType     String
   screens       Int
   seats         Seat[]
-  movieId       Int?            @unique
   MovieSchedule MovieSchedule[]
-  Movie        Movie?
+  Movie         Movie[]
 }
 
 model Seat {
   id           Int           @id @default(autoincrement())
   number       String
-  isReserved   Boolean       @default(false)
   theaterId    Int
   theater      Theater       @relation(fields: [theaterId], references: [id])
   reservations Reservation[]
-  Booking      Booking?      @relation(fields: [bookingId], references: [id])
-  bookingId    Int?
+  // Booking      Booking?      @relation(fields: [bookingId], references: [id])
+  // bookingId    Int?
 }
 
 model Movie {
-  id          Int             @id @default(autoincrement())
-  title       String
-  imageUrl    String?
+  id            Int             @id @default(autoincrement())
+  title         String
+  imageUrl      String?
+  description   String?
+  duration      Int // duration in minutes
+  schedules     MovieSchedule[]
+  Theater       Theater?        @relation(fields: [theaterId], references: [id])
+  theaterId     Int?            @unique
+  MovieCategory MovieCategory[]
+}
+
+model MovieCategory {
+  id          Int     @id @default(autoincrement())
+  name        String
   description String?
-  duration    Int // duration in minutes
-  schedules   MovieSchedule[]
-  Theater     Theater?        @relation(fields: [theaterId], references: [id])
-  theaterId   Int?             @unique
+  movies      Movie[]
 }
 
 model MovieSchedule {
-  id        Int       @id @default(autoincrement())
-  showTime  DateTime
-  movieId   Int
-  theaterId Int
-  movie     Movie     @relation(fields: [movieId], references: [id])
-  theater   Theater   @relation(fields: [theaterId], references: [id])
-  tickets   Ticket[]
-  Booking   Booking[]
+  id          Int           @id @default(autoincrement())
+  showTime    DateTime
+  movieId     Int
+  theaterId   Int
+  movie       Movie         @relation(fields: [movieId], references: [id])
+  theater     Theater       @relation(fields: [theaterId], references: [id])
+  tickets     Ticket[]
+  // Booking   Booking[]
+  Reservation Reservation[]
 }
 
 model Ticket {
@@ -83,26 +91,29 @@ model Ticket {
   userId        Int
   user          User          @relation(fields: [userId], references: [id])
   paymentStatus String
-  Payment Payment[]
+  Payment       Payment[]
 }
 
-model Booking {
-  id         Int           @id @default(autoincrement())
-  userId     Int
-  user       User          @relation(fields: [userId], references: [id])
-  scheduleId Int
-  schedule   MovieSchedule @relation(fields: [scheduleId], references: [id])
-  seats      Seat[]
-  Reservation Reservation[]
-}
+// model Booking {
+//   id         Int           @id @default(autoincrement())
+//   userId     Int
+//   user       User          @relation(fields: [userId], references: [id])
+//   scheduleId Int
+//   schedule   MovieSchedule @relation(fields: [scheduleId], references: [id])
+//   seats      Seat[]
+//   Reservation Reservation[]
+// }
 
 model Reservation {
-  id        Int     @id @default(autoincrement())
-  seatId    Int
-  seat      Seat    @relation(fields: [seatId], references: [id])
-  bookingId Int
-  booking   Booking @relation(fields: [bookingId], references: [id])
-  status    String  @default("reserved")
+  id         Int           @id @default(autoincrement())
+  scheduleId Int
+  schedule   MovieSchedule @relation(fields: [scheduleId], references: [id])
+  seat       Seat[]
+  userId     Int
+  user       User          @relation(fields: [userId], references: [id])
+  // bookingId Int
+  // booking   Booking @relation(fields: [bookingId], references: [id])
+  status     String        @default("reserved")
 }
 
 model Payment {
@@ -110,7 +121,6 @@ model Payment {
   ticketId  Int
   ticket    Ticket   @relation(fields: [ticketId], references: [id])
   amount    Int
-  provider  String   @default("Stripe")
   status    String   @default("pending")
   createdAt DateTime @default(now())
 }

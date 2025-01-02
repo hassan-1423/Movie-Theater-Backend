@@ -5,6 +5,7 @@ import { ForgotPasswordRouter } from "./modules/forgotPassword/forgotPasswordRou
 import { PasswordRouter } from "./modules/password/passwordRouter"
 import { UserRouter } from "./modules/user/userRouter"
 import { CinemaRouter } from "./cinema/cinemaRouter"
+import { MovieRouter } from "./movie/movieRouter"
 
 /**
  * Register all module routers here
@@ -17,4 +18,5 @@ export const routers = new Map<string, FastifyPlugin>([
   ["/api/v1/password", PasswordRouter],
   ["/api/v1/user", UserRouter],
   ["/api/v1/cinema", CinemaRouter],
+  ["/api/v1/movie", MovieRouter],
 ])
