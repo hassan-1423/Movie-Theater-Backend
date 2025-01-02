@@ -53,22 +53,22 @@ model Seat {
 }
 
 model Movie {
-  id            Int             @id @default(autoincrement())
-  title         String
-  imageUrl      String?
-  description   String?
-  duration      Int // duration in minutes
-  schedules     MovieSchedule[]
-  Theater       Theater?        @relation(fields: [theaterId], references: [id])
-  theaterId     Int?            @unique
-  MovieCategory MovieCategory[]
+  id              Int             @id @default(autoincrement())
+  title           String
+  imageUrl        String?
+  description     String?
+  duration        Int // duration in minutes
+  schedules       MovieSchedule[]
+  Theater         Theater?        @relation(fields: [theaterId], references: [id])
+  theaterId       Int?            @unique
+categories  MovieCategory[] @relation("MovieCategories")
 }
 
 model MovieCategory {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  movies      Movie[]
+  id           Int     @id @default(autoincrement())
+  categoryName String
+  description  String?
+  Movie Movie[] @relation("MovieCategories")
 }
 
 model MovieSchedule {
